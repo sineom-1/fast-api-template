@@ -8,7 +8,7 @@
 """
 
 from enum import Enum
-from typing import Union, Optional, List, Dict
+from typing import Union, Optional, List, Dict, Annotated
 
 # 导入pydantic对应的模型基类
 from pydantic import BaseModel, constr, EmailStr, conint, Field, field_validator
@@ -72,8 +72,8 @@ class StudentParam(BaseModel):
     学生信息
     """
 
-    name: constr(min_length=2, max_length=4)  # 长度
-    age: conint(ge=18, le=30)  # 整数范围：18 <= age <= 30
+    name: Annotated[str, Field(min_length=2, max_length=4)]  # 长度
+    age: Annotated[int, Field(ge=18, le=30)]  # 整数范围：18 <= age <= 30
     class_name: str  # 班级名称
 
 

@@ -17,7 +17,7 @@ from app.router import RegisterRouterList
 def Init(server: FastAPI):
     """ 初始化项目"""
     # 挂载静态资源目录
-    server.mount("/static", StaticFiles(directory="static"), name="static")
+    # server.mount("/static", StaticFiles(directory="static"), name="static")
 
     # 注册自定义错误处理器
     errors.registerCustomErrorHandle(server)
@@ -26,4 +26,3 @@ def Init(server: FastAPI):
     # 加载路由
     for item in RegisterRouterList:
         server.include_router(item.router)
-

@@ -18,11 +18,12 @@ def getEnvFile() -> str:
     """ 获取加载的配置文件"""
     # 读取运行环境
     runEnv = os.environ.get("APP_ENV", "")
+    print("运行环境: ", runEnv)
     # 默认加载.env
     envFile = ".env"
     # 运行环境不为空加载 .env 文件
     if runEnv != "":
-        # 当是其他环境时，如测试环境: 加载 .env.test 正式环境: 加载.env.prod
+        # 当是其他环境时，如测试环境: 加载 .env 正式环境: 加载.env.prod
         envFile = f".env.{runEnv}"
     return envFile
 

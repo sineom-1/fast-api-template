@@ -12,6 +12,7 @@ from fastapi import FastAPI
 
 from app import bootstrap
 from app.config import globalAppSettings
+from app import platforms
 
 if __name__ == "__main__":
     print("打印项目配置:", globalAppSettings)
@@ -19,5 +20,6 @@ if __name__ == "__main__":
     server = FastAPI(redoc_url=None, docs_url="/apidoc", title=globalAppSettings.app_name)
     # 初始化项目
     bootstrap.Init(server)
+    platforms.Init()
     # 使用 python main.py 启动服务
     uvicorn.run(server, host=globalAppSettings.app_host, port=globalAppSettings.app_port)

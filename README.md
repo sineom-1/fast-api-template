@@ -72,11 +72,11 @@
 #### 3.2 服务启动
 
 ```sh
-# 启动: 可指定 环境配置文件test(.env.test)、prod(.env.prod)
+# 启动: 可指定 环境配置文件test(.env)、prod(.env.prod)
 ➜  ./server.sh start --env=test
 准备启动应用程序...
 运行脚本: python main.py  --env=test
-获取配置文件:  .env.test
+获取配置文件:  .env
 打印项目配置: ...
 INFO:     Started server process [36836]
 INFO:     Waiting for application startup.
