@@ -23,5 +23,5 @@ class SaveMsg(BaseModel):
     ActionNickName: Optional[str] = None
     """当前发言的用户昵称"""
 
-    time: str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    time: str = datetime.now().strftime("%H:%M:%S")
     """消息时间"""
