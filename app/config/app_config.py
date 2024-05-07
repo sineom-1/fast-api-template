@@ -38,4 +38,5 @@ class AppConfigSettings(BaseSettings):
     dify_url: str = ""
     dify_api_key: str = ""
     """wx配置"""
-    socket_url: str = ""
+    wx_socket_url: str = ""  # 微信消息推送地址
+    wx_msg_path: str = "" # 微信消息保存路径

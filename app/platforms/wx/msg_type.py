@@ -29,5 +29,14 @@ class WXMessageType(Enum):
     """系统消息"""
     RecallMessage = 10002
     """撤回消息"""
-    Music = 49
-    """音乐链接"""
+    Quote = 49
+    """引用消息"""
+    GroupInvitation = 2
+    """群邀请"""
+
+
+class ChatType(Enum):
+    Group = 2
+    """群聊"""
+    Friend = 1
+    """单聊"""

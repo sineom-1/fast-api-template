@@ -8,34 +8,37 @@
 """
 
 import logging
+import os
+from logging.handlers import TimedRotatingFileHandler
 
 # 创建Logger对象
-import os
-
 logger = logging.getLogger(__name__)
-# 设置标准日志等级
-logger.setLevel(logging.DEBUG)
+logger.setLevel(logging.DEBUG)  # 设置日志记录级别为DEBUG
 
-# 如果不存在定义的日志目录就创建一个
+# 定义日志目录和日志文件名
 logfile_dir = "./logs"
 logfile_name = "app.log"
+
+# 如果不存在定义的日志目录就创建一个
 if not os.path.isdir(logfile_dir):
     os.mkdir(logfile_dir)
 
-# 创建FileHandler对象，将日志写入文件
+# 创建日志文件的路径
 logfile_path = os.path.join(logfile_dir, logfile_name)
-file_handler = logging.FileHandler(logfile_path, mode='w')
-# 设置文件中写入的日志等级
-file_handler.setLevel(logging.DEBUG)
+
+# 创建一个TimedRotatingFileHandler，每天午夜轮换日志
+file_handler = TimedRotatingFileHandler(logfile_path, when="midnight", interval=1, backupCount=5)
+file_handler.setLevel(logging.DEBUG)  # 设置文件中写入的日志等级
+file_handler.suffix = "%Y-%m-%d.log"  # 设置分割后日志文件的后缀
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
 
 # 创建StreamHandler对象，将日志输出到控制台
 stream_handler = logging.StreamHandler()
-# 设置控制台显示的日志等级
-stream_handler.setLevel(logging.DEBUG)
+stream_handler.setLevel(logging.DEBUG)  # 设置控制台显示的日志等级
 
 # 设置日志格式
 formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
 stream_handler.setFormatter(formatter)
 
 # 将处理器添加到Logger对象中（注册）

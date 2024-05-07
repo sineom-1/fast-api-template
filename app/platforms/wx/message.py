@@ -11,6 +11,7 @@ from typing import Any, Optional
 
 from pydantic import BaseModel
 
+from app.platforms.wx.msg_event import MsgEvent
 from app.platforms.wx.msg_type import WXMessageType
 
 
@@ -30,11 +31,12 @@ class AddMsg(BaseModel):
     NewMsgIdExt: str
     ActionUserName: str
     ActionNickName: str
+    Template: str
 
 
 class Data(BaseModel):
     AddMsg: AddMsg
-    EventName: str
+    EventName: MsgEvent
 
 
 class CurrentPacket(BaseModel):

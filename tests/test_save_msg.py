@@ -44,15 +44,8 @@ def save_msg(msg):
     data = WXMessage(**data)
     #  保存聊天记录
 
-    save_msg = SaveMsg(
-        FromUserName=data.CurrentPacket.Data.AddMsg.FromUserName,
-        ToUserName=data.CurrentPacket.Data.AddMsg.ToUserName,
-        Content=data.CurrentPacket.Data.AddMsg.Content,
-        ActionUserName=data.CurrentPacket.Data.AddMsg.ActionUserName,
-        ActionNickName=data.CurrentPacket.Data.AddMsg.ActionNickName, )
-    file_path = "./test.txt"
-    with open(file_path, "a", encoding="utf-8") as f:
-        f.write(f"{save_msg.ActionNickName}({save_msg.time}): {save_msg.Content}\n")
+    save_msg = SaveMsg(**{k: v for k, v in data.CurrentPacket.Data.AddMsg.dict().items() if k in SaveMsg.__fields__})
+    print(save_msg)
 
 
 save_msg(msg)

@@ -13,7 +13,7 @@ from pydantic import BaseModel
 
 class SaveMsg(BaseModel):
     FromUserName: str
-    """消息来自哪里,，私聊可以取ActionNickName，群聊需要先获取群资料，然后赋值群昵称"""
+    """消息来自哪里，私聊可以取ActionNickName，群聊需要先获取群资料，然后赋值群昵称"""
     ToUserName: str
     """消息发送到哪里"""
     Content: str
@@ -23,5 +23,5 @@ class SaveMsg(BaseModel):
     ActionNickName: Optional[str] = None
     """当前发言的用户昵称"""
 
-    time: str = datetime.now().strftime("%H:%M:%S")
+    CreateTime: int = int(datetime.now().timestamp())
     """消息时间"""

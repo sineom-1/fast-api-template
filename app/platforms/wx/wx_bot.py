@@ -5,6 +5,7 @@ import websocket
 from app.platforms.wx.message import WXMessage
 from app.platforms.wx.model.save_msg import SaveMsg
 from app.platforms.wx.msg_type import WXMessageType
+from app.scheduler.rm_wx_msg_file import run_scheduler
 from app.utils import logger
 from app.utils.chat_history_util import ChatHistoryUtil
 
@@ -14,14 +15,10 @@ def on_message(_, message):
     data = json.loads(message, strict=False)
     data = WXMessage(**data)
     if data.CurrentPacket.Data.AddMsg.MsgType == WXMessageType.Text:
-        save_msg = SaveMsg(
-            FromUserName=data.CurrentPacket.Data.AddMsg.FromUserName,
-            ToUserName=data.CurrentPacket.Data.AddMsg.ToUserName,
-            Content=data.CurrentPacket.Data.AddMsg.Content,
-            ActionUserName=data.CurrentPacket.Data.AddMsg.ActionUserName,
-            ActionNickName=data.CurrentPacket.Data.AddMsg.ActionNickName,
-        )
-        ChatHistoryUtil.save_msg(save_msg)
+        if data.CurrentPacket.Data.AddMsg.FromUserName == "39253891795@chatroom":
+            save_msg = SaveMsg(
+                **{k: v for k, v in data.CurrentPacket.Data.AddMsg.dict().items() if k in SaveMsg.__fields__})
+            ChatHistoryUtil.save_msg(save_msg)
 
 
 def on_error(_, error):
@@ -34,6 +31,7 @@ def on_close(_, close_status_code, close_msg):
 
 def on_open(_):
     print("### open ###")
+    run_scheduler()
 
 
 def connect_wx_bot(url):

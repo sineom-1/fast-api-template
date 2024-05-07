@@ -13,3 +13,8 @@ class MsgEvent(Enum):
     """新消息"""
     ON_EVENT_PAT_MSG = "ON_EVENT_PAT_MSG"
     """拍一拍消息"""
+    ON_EVENT_FRIEND_REQ = "ON_EVENT_FRIEND_REQ"
+    """好友请求"""
+
+    ON_EVENT_CONTACT_CHANGE = "ON_EVENT_CONTACT_CHANGE"
+    """群邀请"""

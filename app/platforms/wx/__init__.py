@@ -10,4 +10,4 @@ from app.platforms.wx.wx_bot import connect_wx_bot
 
 
 def wx_init():
-    connect_wx_bot(globalAppSettings.socket_url)
+    connect_wx_bot(globalAppSettings.wx_socket_url)
