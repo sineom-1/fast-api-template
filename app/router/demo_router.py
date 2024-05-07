@@ -13,10 +13,10 @@ from typing import Union, Annotated
 
 from fastapi import APIRouter, Header, Cookie
 from fastapi.encoders import jsonable_encoder
+from loguru import logger
 
 from app.types import request
 from app.types import response
-from app.utils import logger
 
 router = APIRouter(
     prefix="/demo",
@@ -179,8 +179,6 @@ async def middleUseTime() -> response.HttpResponse:
     print("暂停时间:", seconds)
     time.sleep(seconds)
     return response.ResponseSuccess(seconds)
-
-
 
 # @router.get("/header/param")
 # async def headParam(x_token: Annotated[list[str] | None, Header()] = None):

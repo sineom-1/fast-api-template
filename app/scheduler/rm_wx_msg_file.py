@@ -11,9 +11,9 @@ import shutil
 import time
 
 import schedule
+from loguru import logger
 
 from app.config import globalAppSettings
-from app.utils import logger
 
 
 def rm_wx_msg_folder():

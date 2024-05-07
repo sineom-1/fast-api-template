@@ -1,12 +1,12 @@
 import json
 
 import websocket
+from loguru import logger
 
 from app.platforms.wx.message import WXMessage
 from app.platforms.wx.model.save_msg import SaveMsg
 from app.platforms.wx.msg_type import WXMessageType
 from app.scheduler.rm_wx_msg_file import run_scheduler
-from app.utils import logger
 from app.utils.chat_history_util import ChatHistoryUtil
 
 
@@ -26,7 +26,7 @@ def on_error(_, error):
 
 
 def on_close(_, close_status_code, close_msg):
-    print("### closed ###")
+    logger.info("### closed ###")
 
 
 def on_open(_):
