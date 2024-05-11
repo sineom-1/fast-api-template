@@ -11,6 +11,8 @@ from enum import Enum
 class WXMessageType(Enum):
     Text = 1
     """文本消息"""
+    GroupInvitation = 2
+    """群邀请"""
     Image = 3
     """图片消息"""
     Audio = 34
@@ -31,8 +33,6 @@ class WXMessageType(Enum):
     """撤回消息"""
     Quote = 49
     """引用消息"""
-    GroupInvitation = 2
-    """群邀请"""
 
 
 class ChatType(Enum):

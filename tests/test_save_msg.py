@@ -7,9 +7,8 @@
 """
 
 import json
+from random import random
 
-from app.platforms.wx.message import WXMessage
-from app.platforms.wx.model.save_msg import SaveMsg
 
 msg = """{
     "CurrentPacket": {
@@ -39,13 +38,7 @@ msg = """{
 }"""
 
 
-def save_msg(msg):
-    data = json.loads(msg, strict=False)
-    data = WXMessage(**data)
-    #  保存聊天记录
+#  random() * 3.0 循环10次
+for _ in range(10):
+    print(random() * 3.0)
 
-    save_msg = SaveMsg(**{k: v for k, v in data.CurrentPacket.Data.AddMsg.dict().items() if k in SaveMsg.__fields__})
-    print(save_msg)
-
-
-save_msg(msg)

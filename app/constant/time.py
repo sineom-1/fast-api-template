@@ -9,3 +9,15 @@
 import pytz
 
 ChinaTimeZone = pytz.timezone("Asia/Shanghai")
+
+# 1分钟-毫秒
+ONE_MINUTE_MS = 60 * 1000
+
+# 1分钟-秒
+ONE_MINUTE = 60
+
+# 5分钟-秒
+FIVE_MINUTES = 5 * ONE_MINUTE
+
+# 5分钟-毫秒
+FIVE_MINUTES_MS = 5 * ONE_MINUTE_MS

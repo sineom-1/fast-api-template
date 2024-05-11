@@ -8,12 +8,12 @@
 import datetime
 import os
 import shutil
-import time
 
 import schedule
 from loguru import logger
 
 from app.config import globalAppSettings
+from main import scheduler
 
 
 def rm_wx_msg_folder():
@@ -32,17 +32,7 @@ def rm_wx_msg_folder():
         logger.info(f"文件夹不存在：{folder_path}")
 
 
-# 设置定时任务，每天凌晨12点执行一次
-schedule.every().day.at("00:00").do(rm_wx_msg_folder)
-
-
 def run_scheduler():
     # 立即执行一次
     rm_wx_msg_folder()
-    while True:
-        schedule.run_pending()
-        time.sleep(1)
-
-
-if __name__ == '__main__':
-    run_scheduler()
+    scheduler.add_job(rm_wx_msg_folder, "cron", hour=0, minute=0, second=0)

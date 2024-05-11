@@ -12,6 +12,16 @@ from pydantic_settings import BaseSettings
 
 class AppConfigSettings(BaseSettings):
     """应用配置"""
+    """管理员id"""
+    admin_id: list[str] = ['hf-2-68']
+    skill_open: str = "说话"
+    skill_close: str = "闭嘴"
+    skill_tg: str = "抬杠模式"
+    skill_kk: str = "夸夸模式"
+    skill_idiom: str = "看图猜成语"
+    skill_zj: str = "聊天总结"
+    skill_open_zj: str = "开启总结"
+    skill_close_zj: str = "关闭总结"
 
     """基础配置"""
     app_name: str = "FastAPI学习"
@@ -32,11 +42,17 @@ class AppConfigSettings(BaseSettings):
     db_pool_size: int = 10  # 连接池中的初始连接数，默认为 5
     db_max_overflow: int = 20  # 连接池中允许的最大超出连接数
     """redis配置"""
-    redis_dsn: RedisDsn = None
+    redis_host: str = None
+    redis_port: int = None
+    redis_user_name: str = None
+    redis_password: str = None
+    redis_pool_size: int = None
+    redis_db: int = None
     """dify配置"""
     dify_enable: bool = False
     dify_url: str = ""
     dify_api_key: str = ""
     """wx配置"""
     wx_socket_url: str = ""  # 微信消息推送地址
-    wx_msg_path: str = "" # 微信消息保存路径
+    wx_msg_path: str = ""  # 微信消息保存路径
+    wx_url: str = ""  # 微信接口地址
