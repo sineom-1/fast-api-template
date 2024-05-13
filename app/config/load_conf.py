@@ -23,7 +23,7 @@ wx_commands = []
 admin_ids = []
 
 # 已经开启回复的群
-reply_group = None
+reply_group = {}
 
 # 已经开启总结的群
 summary_group = []
@@ -70,14 +70,18 @@ def getAppConfig() -> config.AppConfigSettings:
 
 @lru_cache
 def getRedisClient() -> RedisClient:
+    global reply_group
     """ 获取redis客户端 """
     setting = getAppConfig()
     redis = RedisClient(setting.redis_host, setting.redis_port, setting.redis_db, setting.redis_user_name,
                         setting.redis_password, setting.redis_pool_size)
     _admin_ids = redis.get(admin)
-    admin_ids.extend(setting.admin_id)
-    admin_ids.extend(_admin_ids)
+    admin_ids.extend(setting.admin_id.strip(",").split(","))
+    if _admin_ids:
+        admin_ids.extend(_admin_ids)
+
     reply_group = redis.smembers(open_reply_group)
+    print("已经开启的群: ", reply_group)
     return redis
 
 

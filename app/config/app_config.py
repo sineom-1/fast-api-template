@@ -13,7 +13,7 @@ from pydantic_settings import BaseSettings
 class AppConfigSettings(BaseSettings):
     """应用配置"""
     """管理员id"""
-    admin_id: list[str] = ['hf-2-68']
+    admin_id: str = 'hf-2-68'
     skill_open: str = "说话"
     skill_close: str = "闭嘴"
     skill_tg: str = "抬杠模式"
@@ -51,7 +51,9 @@ class AppConfigSettings(BaseSettings):
     """dify配置"""
     dify_enable: bool = False
     dify_url: str = ""
-    dify_api_key: str = ""
+    dify_tg_key: str = ""
+    dify_kk_key: str = ""
+    dify_zj_key: str = ""
     """wx配置"""
     wx_socket_url: str = ""  # 微信消息推送地址
     wx_msg_path: str = ""  # 微信消息保存路径

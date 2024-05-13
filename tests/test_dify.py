@@ -1,10 +1,9 @@
+import asyncio
 import json
 import re
-from asyncio import Timeout
+from typing import Optional
 
 import httpx
-import asyncio
-import time
 
 # def test_dify(query):
 #     data = {
@@ -36,7 +35,7 @@ horsley(16:37): 上门取车貌似其实是代驾
 """
 
 
-async def test_dify_aoi(query: str):
+async def dify_api(query: str):
     data = {
         "inputs": {},
         "query": query,
@@ -46,28 +45,42 @@ async def test_dify_aoi(query: str):
         "files": []
     }
     headers = {
-        "Authorization": "Bearer app-ZQgsXzGUzFP1MPKWyjf1qsb2",
+        "Authorization": "Bearer app-KOgillOBGFBnF6Xn6eHNkitR",
         "Content-Type": "application/json"
     }
-    with httpx.stream("POST", "https://api.dify.ai/v1/chat-messages", data=json.dumps(data),
-                      headers=headers, timeout=60) as response:
-        answer = ""
-        for chunk in response.iter_lines():
-            print(chunk)
-            if not chunk:
-                print("Empty chunk")
-                continue
+    try:
+        async with httpx.AsyncClient() as client:
+            async with client.stream("POST", "https://api.dify.ai/v1/chat-messages",
+                                     json=data, headers=headers, timeout=60) as response:
+                answer = ""
+                async for chunk in response.aiter_text():
+                    print("Received chunk: %s", chunk)
+                    if not chunk.strip():
+                        print("Empty or whitespace chunk, skipping")
+                        continue
 
-            # 将chunk中的json数据提取出来
-            pattern = r"({.*})"
+                    json_data = await extract_json_data(chunk)
+                    if json_data:
+                        answer += json_data.get("answer", "")
+                print("Final answer: %s" % answer)
+                return answer
+    except httpx.RequestError as e:
+        print("HTTP request error: %s", e)
+    except Exception as e:
+        print("An unexpected error occurred: %s", e)
 
-            match = re.search(pattern, chunk, re.DOTALL)
-            if match:
-                extracted_data = match.group(1)
-                print(extracted_data)
-                json_data = json.loads(extracted_data)
-                answer += json_data.get("answer") or ""
-        print(answer)
+
+async def extract_json_data(chunk: str) -> Optional[dict]:
+    """尝试从chunk中提取JSON数据"""
+    pattern = r"({.*})"
+    match = re.search(pattern, chunk, re.DOTALL)
+    if match:
+        try:
+            extracted_data = match.group(1)
+            return json.loads(extracted_data)
+        except json.JSONDecodeError as e:
+            print("JSON decode error: %s", e)
+    return None
 
 
-asyncio.run(test_dify_aoi(msg))
+asyncio.run(dify_api("你是谁"))

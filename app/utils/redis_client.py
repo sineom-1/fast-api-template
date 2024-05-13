@@ -39,7 +39,8 @@ class RedisClient:
 
     def get_redis(self):
         self._redis = self._redis or redis.Redis(
-            host=self.host, port=self.port, db=self.db, password=self.password, max_connections=self.pool_size
+            host=self.host, port=self.port, db=self.db, password=self.password, max_connections=self.pool_size,
+            decode_responses=True
         )
         return self._redis
 
@@ -51,18 +52,30 @@ class RedisClient:
             _redis.set(key, value)
 
     def sadd(self, key, *value):
+        """
+        向set中添加元素
+        """
         _redis = self.get_redis()
         _redis.sadd(key, *value)
 
     def smembers(self, key):
+        """
+        获取set中的所有元素
+        """
         _redis = self.get_redis()
         return _redis.smembers(key)
 
     def srem(self, key, *value):
+        """
+        移除set中的元素
+        """
         _redis = self.get_redis()
         _redis.srem(key, *value)
 
     def sismember(self, key, value) -> Literal[0, 1] | Awaitable[Literal[0, 1]]:
+        """
+        判断元素是否在set中
+        """
         _redis = self.get_redis()
         return _redis.sismember(key, value)
 

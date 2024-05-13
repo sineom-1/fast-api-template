@@ -1,10 +1,12 @@
 import asyncio
 import json
+import re
 
 import websocket
 from loguru import logger
 
-from app.config import globalRedis, globalAppSettings, wx_commands, admin_ids
+from app.adapter.dify.dify_adapter import DifyAdapter
+from app.config import globalRedis, globalAppSettings, wx_commands, admin_ids, reply_group
 from app.constant.redis_key import idiom_user, open_reply_group, reply_mode, open_summary_group
 from app.platforms.wx.model.message import WXMessage, MsgInfo
 from app.platforms.wx.model.save_msg import SaveMsg
@@ -31,15 +33,23 @@ async def parse_msg(message):
     if not msg_info.FromUserName.endswith("@chatroom"):
         # 私聊暂不处理
         return
-
+    if not msg_info.PushContent.endswith("在群聊中@了你"):
+        """消息必须@生效"""
+        return
     if is_command(msg_info):
+        logger.info(f"收到指令：{msg_info.Content}")
         await dispatch_command(msg_info)
     else:
         # 是否开启了回复
-        if not globalRedis.get(open_reply_group % msg_info.FromUserName):
+        logger.debug("开启回复的群：%s" % reply_group)
+        if msg_info.FromUserName not in reply_group:
             # 当前群未开启回复
+            logger.info(f"当前群：{msg_info.FromUserName} 未开启回复")
             return
+
         # 回复
+        result = await DifyAdapter(msg_info.FromUserName).ask(msg_info.Content)
+        await send_txt(result, msg_info.FromUserName)
 
 
 # 开始保存聊天记录
@@ -53,45 +63,56 @@ async def save_msg(msg_info: MsgInfo):
 
 
 async def dispatch_command(msg_info: MsgInfo):
-    if msg_info.MsgType == WXMessageType.Text:
-        # 指令的分发
-        if msg_info.Content == globalAppSettings.skill_idiom:
-            # 看图猜成语
-            await check_idiom(msg_info)
-            if msg_info.PushContent.endswith("@了你"):
-                if msg_info.Content.endswith("看图猜成语"):
-                    await GuessIdiom.guess_idiom(to_user_name=msg_info.FromUserName)
-        elif msg_info.Content == globalAppSettings.skill_open:
-            # 开启指令
-            # 1. 将群id添加到redis中
-            admin_ids.append(msg_info.FromUserName)
-            globalRedis.set(open_reply_group % msg_info.FromUserName, msg_info.FromUserName)
-        elif msg_info.Content == globalAppSettings.skill_close:
-            # 关闭指令
-            admin_ids.remove(msg_info.FromUserName)
-            globalRedis.delete(open_reply_group % msg_info.FromUserName)
-        elif msg_info.Content == globalAppSettings.skill_kk:
-            # 开启夸夸模式
-            # 设置当前群的模式为夸夸模式
-            globalRedis.set(reply_mode % msg_info.FromUserName, globalAppSettings.skill_kk)
-        elif msg_info.Content == globalAppSettings.skill_tg:
-            # 开启抬杠模式
-            globalRedis.set(reply_mode % msg_info.FromUserName, globalAppSettings.skill_tg)
-        elif msg_info.Content == globalAppSettings.skill_zj:
-            # 开始总结
-            pass
-        elif msg_info.Content == globalAppSettings.skill_open_zj:
-            # 开启总结
-            globalRedis.set(open_summary_group % msg_info.FromUserName, globalAppSettings.skill_tg)
-        elif msg_info.Content == globalAppSettings.skill_close_zj:
-            # 关闭总结
-            globalRedis.delete(open_summary_group % msg_info.FromUserName)
+    if not msg_info.PushContent.endswith("在群聊中@了你"):
+        """指令必须@生效"""
+        return
+    if msg_info.Content.endswith(globalAppSettings.skill_idiom):
+        # 看图猜成语
+        await check_idiom(msg_info)
+        if msg_info.Content.endswith("看图猜成语"):
+            await GuessIdiom.guess_idiom(to_user_name=msg_info.FromUserName)
+    elif msg_info.Content.endswith(globalAppSettings.skill_open):
+        # 开启指令
+        # 1. 将群id添加到redis中
+        admin_ids.append(msg_info.FromUserName)
+        globalRedis.sadd(open_reply_group, msg_info.FromUserName)
+        logger.info("开启指令")
+    elif msg_info.Content.endswith(globalAppSettings.skill_close):
+        # 关闭指令
+        reply_group.remove(msg_info.FromUserName)
+        globalRedis.srem(open_reply_group, msg_info.FromUserName)
+        logger.info("关闭指令")
+    elif msg_info.Content.endswith(globalAppSettings.skill_kk):
+        # 开启夸夸模式
+        # 设置当前群的模式为夸夸模式
+        globalRedis.set(reply_mode % msg_info.FromUserName, globalAppSettings.skill_kk)
+        logger.info("开启夸夸模式")
+    elif msg_info.Content.endswith(globalAppSettings.skill_tg):
+        # 开启抬杠模式
+        globalRedis.set(reply_mode % msg_info.FromUserName, globalAppSettings.skill_tg)
+        logger.info("开启抬杠模式")
+    elif msg_info.Content.endswith(globalAppSettings.skill_zj):
+        # 开始总结
+        logger.info("开始总结")
+    elif msg_info.Content.endswith(globalAppSettings.skill_open_zj):
+        # 开启总结
+        globalRedis.set(open_summary_group % msg_info.FromUserName, globalAppSettings.skill_tg)
+        logger.info("开启总结")
+    elif msg_info.Content.endswith(globalAppSettings.skill_close_zj):
+        # 关闭总结
+        globalRedis.delete(open_summary_group % msg_info.FromUserName)
+        logger.info("关闭总结")
 
 
 # 判定当前是否是指令
 def is_command(msg_info: MsgInfo):
     """判定集合中是否有指令，并且是否是管理员发布的"""
-    return msg_info.Content in wx_commands and msg_info.ActionUserName in admin_ids
+    if msg_info.MsgType != WXMessageType.Text:
+        return False
+    # 这个正则表达式会匹配以@开头，后面跟着任意数量的字符（包括空格），然后是我们要查找的字符串
+    match = re.search(r"@.*\s(\S+)", msg_info.Content)
+    command = match.group(1) if match else None
+    return command in wx_commands and msg_info.ActionUserName in admin_ids
 
 
 async def check_idiom(msg_info):

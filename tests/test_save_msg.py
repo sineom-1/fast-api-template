@@ -7,6 +7,7 @@
 """
 
 import json
+import re
 from random import random
 
 
@@ -39,6 +40,17 @@ msg = """{
 
 
 #  random() * 3.0 循环10次
-for _ in range(10):
-    print(random() * 3.0)
+# for _ in range(10):
+#     print(random() * 3.0)
 
+# 原始字符串
+s = "@啊哟喔K说话"
+
+# 使用正则表达式进行匹配
+# 这个正则表达式会匹配以@开头，后面跟着任意数量的字符（包括空格），然后是我们要查找的字符串'bbbb'
+match = re.search(r"@.*\s(\S+)", s)
+
+# 如果匹配成功，获取匹配的字符串
+result = match.group(1) if match else None
+
+print(result)  # 输出应该是 'bbbb'
